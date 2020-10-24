@@ -1,0 +1,4 @@
+/Users/apple/Desktop/PRALG/zipimage/CMakeFiles/zipimage.dir
+/Users/apple/Desktop/PRALG/zipimage/CMakeFiles/test_quadtree.dir
+/Users/apple/Desktop/PRALG/zipimage/CMakeFiles/ALL_BUILD.dir
+/Users/apple/Desktop/PRALG/zipimage/CMakeFiles/ZERO_CHECK.dir
