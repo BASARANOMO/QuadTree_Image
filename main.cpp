@@ -8,8 +8,8 @@ using namespace std;
 
 // ************************** MY CODE HERE ***************************************** //
 // *************************** DECLARATION ***************************************** //
-QuadTree<byte> *black = new QuadLeaf<byte>(byte(0));    // black leaf pointer
-QuadTree<byte> *white = new QuadLeaf<byte>(byte(255));  // white leaf pointer
+QuadTree<byte> *black = new QuadLeaf<byte>(byte(0));    // black leaf pointer (global variable)
+QuadTree<byte> *white = new QuadLeaf<byte>(byte(255));  // white leaf pointer (global variable)
 
 // forward declaration, you can find the definition down below
 template<typename T>
@@ -25,11 +25,18 @@ QuadTree<T>* quaddag(T*, int, int, int, int const, int const, bool const = true)
 template<typename T>
 void quadtreeDecoding(QuadTree<T>*, T*, int, int, int, int const);
 
-int nextPow2(int);
+int nextPow2(int);  // find the nearest superior power of 2
+
+template<typename T>
+int sizeQuadTree(QuadTree<T>*, bool const = false);
+
+template<typename T>
+double imageCompressionRatio(QuadTree<T>*, int const, int const);
 // ************************** MY CODE HERE ***************************************** //
 
 
 int main(int argc, char **argv) {
+    cout << "************************ RUNNING HORSE SQUARE *********************************" << endl;
     // Get image file (default is running horse)
     const char *image_file =
         (argc > 1) ? argv[1] : srcPath("running-horse-square.png");
@@ -46,27 +53,26 @@ int main(int argc, char **argv) {
     q = dfs(image, 0, 0, width, width);
     //display(q);
     
+    cout << "********************* RUNNING HORSE SQUARE: DAG TREE ***************************" << endl;
     QuadTree<byte>* qDAG;
     qDAG = quaddag(image, 0, 0, width, width, height, true);
-    //qDAG = quaddag(image, 0, 0, width, width);
     //display(qDAG);
     
+    // image decoding
     byte* imageDecoded = new byte[width * height];
     quadtreeDecoding(qDAG, imageDecoded, 0, 0, width, width);
-    // Display image
+    
+    // DAG tree size and compression ratio
+    cout << "QuadTree DAG size (bytes in memory): " << sizeQuadTree(qDAG, true) << endl;
+    cout << "Compression ratio (nbr leaves / nbr pixels): " << imageCompressionRatio(qDAG, width, height) << endl;
+    
+    // Display image decoded
     Window window = openWindow(width, height);
     putGreyImage(IntPoint2(0,0), imageDecoded, width, height);
     // Pause
     click();
     
-    /*
-    // Display image
-    Window window = openWindow(width, height);
-    putGreyImage(IntPoint2(0,0), image, width, height);
-    // Pause
-    click();
-    */
-    
+    cout << "************************ RUNNING HORSE RECTANGLE *******************************" << endl;
     // Get image file (default is running horse)
     const char *image_file2 =
         (argc > 1) ? argv[1] : srcPath("running-horse-rect.png");
@@ -86,12 +92,13 @@ int main(int argc, char **argv) {
     byte* imageDecoded2 = new byte[length2 * length2];
     quadtreeDecoding(qDAG2, imageDecoded2, 0, 0, length2, length2);
     
-    // Display image
+    // Display image decoded
     //Window window2 = openWindow(length2, length2);
     putGreyImage(IntPoint2(0,0), imageDecoded2, length2, length2);
     // Pause
     click();
     
+    // delete pointers (global variables)
     delete black;
     delete white;
     
@@ -237,5 +244,26 @@ int nextPow2(int num) {
     int rval = 1;
     while (rval < num) rval <<= 1;
     return rval;
+};
+
+template<typename T>
+int sizeQuadTree(QuadTree<T>* q, bool const isBlackWhiteDAG) {
+    int nbNodes = q->nNodes();
+    int treeSize;
+    if (isBlackWhiteDAG) {
+        treeSize = 2 * sizeof(QuadLeaf<T>) + nbNodes * sizeof(QuadNode<T>);
+    }
+    else {
+        int nbLeaves = q->nLeaves();
+        treeSize = nbLeaves * sizeof(QuadLeaf<T>) + nbNodes * sizeof(QuadNode<T>);
+    }
+    return treeSize;
+};
+
+template<typename T>
+double imageCompressionRatio(QuadTree<T>* q, int const width, int const height) {
+    int nbLeaves = q->nLeaves();
+    double compressionRatio = double(nbLeaves) / double(width * height);
+    return compressionRatio;
 };
 // ************************** MY CODE HERE ***************************************** //

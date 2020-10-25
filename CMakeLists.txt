@@ -10,5 +10,5 @@ project(ZipImage)
 
 add_executable(test_quadtree quadtree/example.cpp quadtree/quadtree.h)
 
-add_executable(zipimage example.cpp quadtree/quadtree.h)
+add_executable(zipimage main.cpp quadtree/quadtree.h)
 ImagineUseModules(zipimage Graphics)
